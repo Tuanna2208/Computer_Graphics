@@ -1,0 +1,107 @@
+#Cau1
+select * from nglieu where nglieu.C > 0;
+
+#Cau2
+#Cach 1 su dung phep join 3 bang
+select tpma.MaNL, nl.Ten from tpmonan tpma 
+	join nglieu nl on tpma.MaNL = nl.MaNL
+    join monan ma on tpma.MaMA = ma.MaMA
+    where ma.TenMA = "Ca sot ca";
+#Cach 2 su dung truy van long
+select nl.MaNL, nl.Ten from nglieu nl
+	join tpmonan tpma on nl.MaNL = tpma.MaNL
+    where tpma.MaMA = (select ma.MaMA from monan ma where ma.TenMA = "Ca sot ca");
+    
+#Cau3
+select ma.TenMA from monan ma 
+	join loaima lma on ma.Loai = lma.Loai
+    where lma.TenLoai = "Mon Man" and ma.Gia <= 3000;
+
+#Cau4
+select ma.MaMA, ma.TenMA from tpmonan tpma
+	join monan ma on tpma.MaMA = ma.MaMA
+    join nglieu nl on tpma.MaNL = nl.MaNL
+    where ma.Loai = (select loaima.Loai from loaima where loaima.TenLoai = "Mon Canh")
+    and nl.Ten = "Ca chua";
+#Cau5
+select count(*) from tpmonan tpma
+	join monan ma on tpma.MaMA = ma.MaMA
+    join nglieu nl on tpma.MaNL = nl.MaNL
+    where ma.Loai = (select loaima.Loai from loaima where loaima.TenLoai = "Mon Canh")
+    and nl.Ten = "Ca chua";
+    
+#Cau6
+select nl.Nhom, count(*) as "sonl" from nglieu nl group by nl.Nhom having sonl > 10;
+
+#Cau7
+select lma.Loai, lma.TenLoai, count(*) as "soma" from loaima lma 
+	join monan ma on ma.Loai = lma.Loai 
+    group by lma.Loai;
+
+#Cau8
+select ma.MaMA, ma.TenMA, count(*) as "tongmaky" from monan ma
+	join monanky mak on ma.MaMA = mak.MaMA
+    group by mak.MaMA;
+
+#Cau9
+select ma.MaMA, ma.TenMA, count(*) as "tongmaky" from monan ma
+	join monanky mak on ma.MaMA = mak.MaMA
+    group by mak.MaMA
+    order by ma.TenMA ASC;
+    
+#Cau10
+select ma.MaMA, ma.TenMA, count(*) as "tongmaky" from monan ma
+	join monanky mak on ma.MaMA = mak.MaMA
+    group by mak.MaMA
+    order by count(*) DESC LIMIT 1;
+    
+#Cau11
+select lma.Loai, lma.TenLoai, count(*) as "soma" from loaima lma 
+	join monan ma on ma.Loai = lma.Loai 
+    group by lma.Loai order by soma DESC LIMIT 1;
+
+#Cau12
+select ba.MaBA, ba.Gia, ba.Calori from buaan ba 
+	where ba.MaBA = (select tpba.MaBA from tpbuaan tpba 
+					group by MaBA 
+                    order by count(*) DESC LIMIT 1);
+
+#Cau13
+select ma.MaMA, ma.TenMA from monan ma
+	where ma.MaMA not in (select tpba.MaMA from tpbuaan tpba);
+    
+#Cau14
+select nl.MaNL, nl.Ten from nglieu nl
+	where nl.MaNL not in (
+			select distinct nlk.MaNL from nglieuky nlk 
+            union select distinct nlk1.MaNLK from nglieuky nlk1);
+
+#Cau15
+select ma.MaMA, ma.TenMA from monan ma
+	where ma.MaMA not in (
+			select distinct mak.MaMA from monanky mak 
+            union select distinct mak1.MaMAK from monanky mak1);
+            
+#Cau16
+select ba.MaBA from buaan ba
+	join tpbuaan tpba on ba.MaBA = tpba.MaBA
+    where tpba.MaMA = (select ma.MaMA from monan ma order by ma.Calori ASC limit 1);
+    
+#Cau17
+select ma.TenMA, ma.Calori from monan ma order by ma.Calori DESC limit 1;
+
+#Cau18
+select ma.MaMA, ma.TenMA, count(*) as "so_mak" from monan ma
+	join monanky mak on ma.MaMA = mak.MaMA
+    group by mak.MaMA;
+    
+#Cau19
+select ma.MaMA, ma.TenMA from monan ma
+where MaMA in (select tpba1.MaMA from tpbuaan tpba1 group by tpba1.MaMA 
+	having count(*) = (select count(distinct tpba.MaBA) from tpbuaan tpba));
+    
+#Cau20
+select ma.MaMA, ma.TenMA from monan ma
+where ma.MaMA in (select tpba1.MaMA from tpbuaan tpba1 group by tpba1.MaMA 
+	having count(*) = (select count(distinct tpba.MaBA) from tpbuaan tpba))
+    and ma.Gia > 3000;
